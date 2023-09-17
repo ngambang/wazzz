@@ -1,0 +1,23 @@
+<%- include('header.ejs') %>
+<%- include('menu.ejs') %>
+
+<h1><%- title %></h1>
+<form action="/api/broadcast" method="post">
+    <div class="mb-3">
+      <label for="pesan" class="form-label">Pesan</label>
+      <textarea class="form-control" name="pesan" id="pesan" rows="10"></textarea>
+    </div>
+    <div class="mb-3">
+      <label for="hp" class="form-label">No.Whatsapp</label>
+      <textarea class="form-control" name="hp" id="hp" rows="2"></textarea>
+      <small class="form-text"><i>*Gunakan koma untuk memisahkan contoh 6281232088696,6281234xxxxx</i></small>
+    </div>
+    <div class="mb-3">
+        <input type="submit" value="Kirim" class="btn btn-primary">
+    </div>
+
+</form>
+
+
+<%- include('footer.ejs') %>
+

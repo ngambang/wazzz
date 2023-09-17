@@ -1,0 +1,157 @@
+
+<%- include('header.ejs') %>
+<%- include('menu.ejs') %>
+
+<h1><%- title %></h1>
+
+<div class="row">
+	<hr>
+	<div class="col-md-4">
+		<form action="/auto-reply" method="post" enctype="multipart/form-data">
+			<div class="mb-3">
+				<label for="auto" class="form-label">Type</label>
+				<select name="tipe" class="form-control">
+					<option>Exact Match</option>
+					<option>Contain</option>
+				</select>
+			</div>
+			<div class="mb-3">
+				<label for="keyword" class="form-label">Keyword</label>
+				<input type="text" required class="form-control" name="keyword" id="keyword" placeholder="Keyword">
+			</div>
+			<div class="mb-3">
+				<label for="response" class="form-label">Response</label>
+				<textarea class="form-control" required name="response" id="response" rows="3"></textarea>
+			</div>
+			<div class="mb-3">
+				<label for="media" class="form-label">Media</label>
+				<input type="file" class="form-control" id="media" name="file" accept="image/*">
+			</div>
+
+            <div class="mb-3">
+				<label for="tipe_response" class="form-label">Tipe Response</label>
+                <select class="form-control" onchange="tipeResponse(this)" name="tipe_response" id="tipe_response">
+                    <option>Text</option>
+                    <option>Button</option>
+                    <option>List</option>
+                </select>   
+			</div>
+            
+            <div class="mb-3" id="button-list" style="display: none;">
+				<div id="clone-button">
+					<select class="form-control keyword" id="keyword-1" name="button[]" data-placeholder="Pilih 1">
+						<% JSON.parse(data_auto).forEach((item) => { %>
+							<option><%- item.keyword %></option>
+						<% }) %>
+					</select>		
+					<p></p>
+				</div>
+				<div id="clone-sini">
+
+				</div>
+				<button type='button' class="btn btn-outline-success w-100" id="add">Tambah List</button>
+			</div>
+
+
+
+			<div class="mb-3">
+				<input type="submit" value="Simpan" class="btn btn-primary">
+			</div>
+
+		</form>
+	</div>
+	<div class="col-md-8">
+		Data Auto Reply 
+		<p></p>
+		<table class="table table-bordered mt-2" id="auto">
+			<thead>
+				<tr>
+					<th>Keyword</th>
+					<th>Response</th>
+					<th>media</th>
+				</tr>
+			</thead>
+			<tbody>
+                <% JSON.parse(data_auto).forEach((item) => { %>
+                    <tr>
+                        <td>
+                            <%- item.keyword %><br/>
+                            <div class="badge text-bg-primary"><%- item.tipe %></div><p></p>
+                            <a href="/auto-reply/hapus/<%- item.id %>" class="btn btn-sm btn-danger">hapus</a>
+                        </td>
+                        <td>
+							<textarea class="form-control" disabled><%- item.response %></textarea>
+							<span class="badge text-bg-danger"><%- item.tipe_response %></span>
+							<% const jsonArray = item.list != "" ? JSON.parse(item.list):[]; 
+								jsonArray.forEach((list) =>{ %>
+								<div class="badge text-bg-success"><%- list %></div>
+							<% }) %>
+
+							
+						</td>
+                        <td width="100px">
+                            <% if (item.media) { %>
+                                <img src="media/<%- item.media %>" alt="Media" style="width:100%">
+                            <% } else { %>
+                                Tidak ada media
+                            <% } %>
+                        </td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    new DataTable('#auto');
+	var key = 1;
+    function tipeResponse(e){
+
+        if(e.value === "Button" || e.value === "List"){
+			$("#button-list").show();
+        }else{
+			$("#button-list").hide();
+		}
+
+    }
+
+	function selectRefresh() {
+		$( '.keyword' ).select2( {
+			theme: "bootstrap-5",
+			placeholder: $( this ).data( 'placeholder' ),
+		} );
+
+	}
+
+
+	$(document).ready(function() {
+		selectRefresh();
+		$('#add').click(function() {
+
+			if($("#tipe_response").val() === "Button"){
+				maxList = 3;
+			}else{
+				maxList = 25;
+			}
+
+			if($(".keyword").length < maxList ){
+				var html = `<select class="form-control keyword" name="button[]" data-placeholder="Pilih 1">
+								<% JSON.parse(data_auto).forEach((item) => { %>
+									<option><%- item.keyword %></option>
+								<% }) %>
+							</select>
+							<p></p>`;
+				$("#clone-sini").append(html);
+				selectRefresh();
+			}else{
+				alert("Kakeaann")
+			}
+		});
+	});
+
+
+	
+</script>
+<%- include('footer.ejs') %>
+

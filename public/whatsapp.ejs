@@ -1,0 +1,70 @@
+<%- include('header.ejs') %>
+<%- include('menu.ejs') %>
+
+<h1><%- title %></h1>
+
+<div id="qrcode">Scan Barcode ini </div>
+<div id="tunggu">
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.js" integrity="sha512-is1ls2rgwpFZyixqKFEExPHVUUL+pPkBEPw47s/6NDQ4n1m6T/ySeDW3p54jp45z2EJ0RSOgilqee1WhtelXfA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src = "/socket.io/socket.io.js"></script>
+<script>
+   var socket = io();
+   var qrCode = localStorage.getItem('qr-code');
+   if(qrCode){
+    new QRCode(document.getElementById("qrcode"),qrCode);
+   }
+
+   socket.on("qr-code",(qrcode)=>{
+        document.getElementById("qrcode").innerHTML = "";
+        localStorage.setItem("qr-code",qrcode)
+        new QRCode(document.getElementById("qrcode"),qrcode);
+
+    })
+
+    socket.on("wes-login",(e)=>{
+        document.getElementById("qrcode").innerHTML = "";
+        localStorage.removeItem("qr-code")
+    });
+    socket.on("wes-ready",(msg)=>{
+        localStorage.removeItem("qr-code")
+        var data = JSON.parse(msg)['data'];
+        var me   = `
+            <hr>
+            <table class='table table-bordered'>
+                <tr>
+                    <th colspan='2'>Info Login</th>
+                </tr>
+                <tr>
+                    <th>Nama</th>
+                    <td>${data['pushname']}</td>
+                </tr>
+                <tr>
+                    <th>Phone</th>
+                    <td>${data['me']['user']}</td>
+                </tr>
+            </table>    
+        `; 
+
+        document.getElementById("qrcode").innerHTML = me;
+        
+    });
+    socket.on("loading-wa",(msg)=>{ 
+        
+        switch(msg['data']){
+            case 0 :
+            document.getElementById("tunggu").innerText = "Tunggu beberapa saat, proses login";
+            break
+            default :
+            document.getElementById("tunggu").innerText = "Oke proses login sukses";
+
+            break
+        }
+        
+    });
+
+</script>
+<%- include('footer.ejs') %>
+
